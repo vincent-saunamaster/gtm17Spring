@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+		
+<!-- permet d'utiliser les annotations @Autowired et @Component-->
+<context:annotation-config/>
+<!-- permet de déterminer où chercher les @Component -->
+<context:component-scan base-package="com.vincent.TPSpectacle"/>
+
+	<bean id="saxophone" class="com.vincent.TPSpectacle.Saxophone"
+		scope="prototype">
+	</bean>
+	
+	<!-- primary => Qualifier pour autowire byType -->
+	<bean id="violon" class="com.vincent.TPSpectacle.Violon" primary="true">
+	</bean>
+	
+	<bean id="guitare" class="com.vincent.TPSpectacle.Guitare">
+	</bean>
+	<bean id="Olivier" class="com.vincent.TPSpectacle.Musicien">
+		<property name="morceau" value="Vive le vent... "></property>
+		<property name="instrument" ref="saxophone"></property>
+	</bean>
+	<bean id="Caroline" class="com.vincent.TPSpectacle.Musicien">
+		<property name="instrument" ref="violon"></property>
+	</bean>
+	<bean id="Jean-Marc" class="com.vincent.TPSpectacle.Musicien">
+		<property name="instrument" ref="saxophone"></property>
+	</bean>
+	
+	<bean id="Julien" class="com.vincent.TPSpectacle.MusicienPolyInstrumentiste">
+		<!-- list accepte doublons -->
+		<property name="instruments">
+			<list>
+				<ref bean="saxophone" />
+				<ref bean="saxophone" />
+				<ref bean="guitare" />
+				<ref bean="violon" />
+			</list>
+		</property>
+	</bean>
+	<bean id="Alain" class="com.vincent.TPSpectacle.MusicienPolyInstrumentiste">
+		<!-- list n'accepte pas doublons, il les écrase -->
+		<property name="instruments">
+			<set>
+				<ref bean="saxophone" />
+				<ref bean="saxophone" />
+				<ref bean="guitare" />
+				<ref bean="violon" />
+			</set>
+		</property>
+	</bean>
+	
+	<!-- utilisation des expressions language -->
+	<bean id="Louis" class="com.vincent.TPSpectacle.Musicien">
+		<property name="morceau" value="#{Olivier.morceau}"></property>
+		<property name="instrument" ref="saxophone"></property>
+	</bean>
+	
+	<!-- utilisation de autowire byName (injection de l'instrument saxophone) -->
+	<bean id="instrument" class="com.vincent.TPSpectacle.Saxophone"></bean>
+	<bean id="Michel" class="com.vincent.TPSpectacle.Musicien"
+		autowire="byName"> <!-- comme il y a deux attribut dans musicien, celui qui n'est pas défini est forcément l'autowire -->
+		<property name="morceau" value="autowire, byName">
+		</property>
+	</bean>
+	
+	<!-- utilisation de autowire byType => nécessite Qualifier pour discerner 
+		quel implémentation de Instrument -->
+	<bean id="Maurice" class="com.vincent.TPSpectacle.Musicien"
+		autowire="byType">
+		<property name="morceau" value="autowire, byType + Qualifier">
+		</property>
+	</bean>
+	
+	<!-- définition d'une classe abstraite... -->
+	<bean name="parent" class="com.vincent.TPSpectacle.Musicien"
+		abstract="true">
+		<property name="morceau" value="classe abstraite">
+		</property>
+		<property name="instrument" ref="violon"></property>
+	</bean>
+	<!-- ... et de sa redfinition  -->
+	<bean name="Martin" class="com.vincent.TPSpectacle.Musicien"
+		parent="parent">
+		<property name="instrument" ref="saxophone"></property>
+	</bean>
+
+
+
+
+</beans>
