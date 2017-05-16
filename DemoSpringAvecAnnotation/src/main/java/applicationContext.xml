@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
@@ -11,6 +10,10 @@
 	<context:annotation-config />
 	<!-- package contenant les classes annotées spring -->
 	<context:component-scan base-package="com.vincent" />
+
+
+	
+	<!-- config pour la datasource/bdd -->
 
 	<!-- recherche du fichier de properties -->
 	<context:property-placeholder location="classpath*:sgbd.properties" />
@@ -27,6 +30,10 @@
 		<!-- propriété mot de passe -->
 		<property name="password" value="${db.password}" />
 	</bean>
+
+
+
+	<!-- Config pour hibernate -->
 
 	<!-- BEWARE if you use Hibernate 3, use instead class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean -->
 	<!-- bean de creation de la session factory -->
@@ -61,10 +68,29 @@
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
-
 	</bean>
-	<!-- <bean id="ville" class="business.model.City" /> <bean id="pays" class="business.model.Country"/> -->
 
-	<!-- prise en compte du gestionnaire de transaction pour @Transactional -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+
+
+	<!-- Config pour qualifier gestionnaire de transaction pour @Transactional -->
+	
+	<!-- <tx:annotation-driven transaction-manager="transactionManager" /> -->
+	<tx:annotation-driven transaction-manager="transactionManagerJPA" />
+
+
+
+	<!-- config pour JPA -->
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" primary="true"> <!-- primary=true pour qualifier emf -->
+		<property name="persistenceUnitName" value="testPU" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="transactionManagerJPA" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+
+
 </beans>

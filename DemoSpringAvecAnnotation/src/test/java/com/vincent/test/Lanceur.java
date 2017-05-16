@@ -25,16 +25,20 @@ public class Lanceur {
 		
 		// 3- TTT
 		service.ajouterUser(u);
+		
 		List<User> listU = service.listerUser();
 		for (User user : listU) {
 			System.out.println(user);
 		}
-		service.supprimerUser(8);
+		
+		service.supprimerUser(4);
+		
 		service.listerParMC("toto");
 		for (User user : listU) {
 			System.out.println(user);
 		}
 		System.out.println(service.listerParNom("toto"));
+		
 		// 4- détruire contexte
 		appContext.close();
 	}

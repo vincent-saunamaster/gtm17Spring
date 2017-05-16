@@ -13,7 +13,8 @@ import com.vincent.metier.User;
 public class ServiceImpl implements IService {
 
 	@Autowired
-	@Qualifier("daoImplHibernate")
+	//@Qualifier("daoImplHibernate")
+	@Qualifier("daoImplJPA")
 	private IDao dao;
 
 	public void ajouterUser(User u) {
