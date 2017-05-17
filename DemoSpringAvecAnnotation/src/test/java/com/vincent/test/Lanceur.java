@@ -31,12 +31,13 @@ public class Lanceur {
 			System.out.println(user);
 		}
 		
-		service.supprimerUser(4);
+		service.supprimerUser(11);
 		
 		service.listerParMC("toto");
 		for (User user : listU) {
 			System.out.println(user);
 		}
+		
 		System.out.println(service.listerParNom("toto"));
 		
 		// 4- détruire contexte
