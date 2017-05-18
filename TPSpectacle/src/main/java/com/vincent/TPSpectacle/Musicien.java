@@ -1,6 +1,7 @@
 package com.vincent.TPSpectacle;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,7 +55,7 @@ public class Musicien implements Performeur {
 	}
 
 	// 19) Cycle de vie : accorder un instrument lors de son initialisation
-	// @PreDestroy
+	@PreDestroy
 	public void nettoyer() throws Exception {
 		System.out.println("Nettoyage de l'instrument apr�s utilisation");
 	}

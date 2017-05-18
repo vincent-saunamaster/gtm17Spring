@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
-		
-<!-- permet d'utiliser les annotations @Autowired et @Component-->
-<context:annotation-config/>
-<!-- permet de déterminer où chercher les @Component -->
-<context:component-scan base-package="com.vincent.TPSpectacle"/>
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<!-- permet d'utiliser les annotations @Autowired et @Component -->
+	<context:annotation-config />
+	<!-- permet de déterminer où chercher les @Component -->
+	<context:component-scan base-package="com.vincent.TPSpectacle" />
 
 	<bean id="saxophone" class="com.vincent.TPSpectacle.Saxophone"
 		scope="prototype">
 	</bean>
-	
+
 	<!-- primary => Qualifier pour autowire byType -->
 	<bean id="violon" class="com.vincent.TPSpectacle.Violon" primary="true">
 	</bean>
-	
+
 	<bean id="guitare" class="com.vincent.TPSpectacle.Guitare">
 	</bean>
 	<bean id="Olivier" class="com.vincent.TPSpectacle.Musicien">
@@ -30,7 +31,7 @@
 	<bean id="Jean-Marc" class="com.vincent.TPSpectacle.Musicien">
 		<property name="instrument" ref="saxophone"></property>
 	</bean>
-	
+
 	<bean id="Julien" class="com.vincent.TPSpectacle.MusicienPolyInstrumentiste">
 		<!-- list accepte doublons -->
 		<property name="instruments">
@@ -53,21 +54,23 @@
 			</set>
 		</property>
 	</bean>
-	
+
 	<!-- utilisation des expressions language -->
 	<bean id="Louis" class="com.vincent.TPSpectacle.Musicien">
-		<property name="morceau" value="#{Olivier.morceau}"></property>
+		<!-- <property name="morceau" value="#{Olivier.morceau}"></property> -->
+		<property name="morceau" value="Vive le vent... "></property>
 		<property name="instrument" ref="saxophone"></property>
 	</bean>
-	
+
 	<!-- utilisation de autowire byName (injection de l'instrument saxophone) -->
 	<bean id="instrument" class="com.vincent.TPSpectacle.Saxophone"></bean>
 	<bean id="Michel" class="com.vincent.TPSpectacle.Musicien"
-		autowire="byName"> <!-- comme il y a deux attribut dans musicien, celui qui n'est pas défini est forcément l'autowire -->
+		autowire="byName"> <!-- comme il y a deux attribut dans musicien, celui qui n'est pas défini 
+			est forcément l'autowire -->
 		<property name="morceau" value="autowire, byName">
 		</property>
 	</bean>
-	
+
 	<!-- utilisation de autowire byType => nécessite Qualifier pour discerner 
 		quel implémentation de Instrument -->
 	<bean id="Maurice" class="com.vincent.TPSpectacle.Musicien"
@@ -75,7 +78,7 @@
 		<property name="morceau" value="autowire, byType + Qualifier">
 		</property>
 	</bean>
-	
+
 	<!-- définition d'une classe abstraite... -->
 	<bean name="parent" class="com.vincent.TPSpectacle.Musicien"
 		abstract="true">
@@ -83,13 +86,56 @@
 		</property>
 		<property name="instrument" ref="violon"></property>
 	</bean>
-	<!-- ... et de sa redfinition  -->
+	<!-- ... et de sa redfinition -->
 	<bean name="Martin" class="com.vincent.TPSpectacle.Musicien"
 		parent="parent">
 		<property name="instrument" ref="saxophone"></property>
 	</bean>
 
 
+	<!-- Mise en oeuvre AOP -->
 
+	<!-- déclaration bean intercepteur 1 -->
+	<bean id="spectateurs" class="com.vincent.TPSpectacle.interceptor.Spectateurs" />
+	<!-- déclaration bean intercepteur 2 -->
+	<bean id="musiciens" class="com.vincent.TPSpectacle.interceptor.Musiciens" />
+	<!-- déclaration bean intercepteur 3 version xml (sans spring @Component)-->
+	<!-- 
+	<bean id="spectateurs2" class="com.vincent.TPSpectacle.interceptor.Spectateurs2" />
+ 	-->
+
+	<!-- mise en oeuvre du tissage pour intercepteur 1 -->
+	<aop:config>
+		<!-- définition d'un lieu d'interception -->
+		<aop:pointcut expression="execution(* *.jouer(. .))" id="service1Pointcut" />
+
+		<!-- mise en oeuvre de l'aspect -->
+		<aop:aspect id="spectateurAspect" ref="spectateurs">
+			<!-- méthode de l'aspect appelé avant -->
+			<aop:before method="prendPlace" pointcut-ref="service1Pointcut" />
+			<!-- méthode de l'aspect appelé avant -->
+			<aop:after-returning method="applaudit"
+				pointcut-ref="service1Pointcut" />
+		</aop:aspect>
+	</aop:config>
+	<!-- mise en oeuvre du tissage pour intercepteur 2 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* *.performe(. .))"
+			id="service2Pointcut" />
+		<!-- mise en oeuvre de l'aspect -->
+		<aop:aspect id="musiciensAspect" ref="musiciens">
+			<aop:around method="jeJoue" pointcut-ref="service2Pointcut" />
+		</aop:aspect>
+	</aop:config>
+
+	<!-- mise en oeuvre du tissage pour intercepteur 3 -->
+	<!-- pour utiliser les annotation @Aspect -->
+	<aop:aspectj-autoproxy />
+	<!-- version xml (sans spring @Component) -->
+	<!-- 
+	<aop:config>
+		<aop:aspect ref="spectateurs2"></aop:aspect>
+	</aop:config>
+	 -->
 
 </beans>

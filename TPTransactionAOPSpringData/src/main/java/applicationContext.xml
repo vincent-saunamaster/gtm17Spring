@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.8.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- permet d'utiliser les annotations @Autowired et @Component -->
+	<context:annotation-config />
+	<!-- permet de déterminer où chercher les @Component -->
+	<context:component-scan base-package="com.vincent" />
+
+	<!-- config pour la datasource/bdd -->
+
+	<!-- recherche du fichier de properties -->
+	<context:property-placeholder location="classpath*:sgbd.properties" />
+
+	<!-- bean dataSource = bean de source des données, ou se retrouvent les 
+		données à manipuler dans mon application -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<!-- propriété driver -->
+		<property name="driverClassName" value="${db.driver}" />
+		<!-- propriété url -->
+		<property name="url" value="${db.url}" />
+		<!-- propriété username -->
+		<property name="username" value="${db.user}" />
+		<!-- propriété mot de passe -->
+		<property name="password" value="${db.password}" />
+	</bean>
+
+	<!-- config pour JPA -->
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		primary="true"> <!-- primary=true pour qualifier emf -->
+		<property name="persistenceUnitName" value="testPU" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- définition du gestionnaire de transactions faisant référence au bean 
+		emf -->
+	<bean id="transactionManagerJPA" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+
+	<!-- config pour spring data jpa -->
+
+	<jpa:repositories base-package="com.vincent.dao"
+		entity-manager-factory-ref="entityManagerFactory"
+		transaction-manager-ref="transactionManagerJPA" />
+
+
+	<!-- Mise en oeuvre AOP -->
+
+	<!-- mise en oeuvre du tissage pour intercepteur 3 -->
+	<!-- pour utiliser les annotation @Aspect -->
+	<aop:aspectj-autoproxy />
+
+
+	<!-- Mise en place d'un intercepteur SPRING pour la gestion des interceptions (non fonctionnel) -->
+	<!--  
+	<tx:advice id="txAdvise" transaction-manager="transactionManagerJPA">
+		<tx:attributes>
+			<tx:method name="getQtyEnStock" rollback-for="ArticleNotFoundException" />
+			<tx:method name="sortArticledustock" rollback-for="ArticleNotFoundException, QtyNegativeException, NotEnoughArticleException" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+	-->
+		<!-- surveiller toutes méthodes de la couche service par le bean txAdvise -->
+		<!-- 
+		<aop:pointcut expression="execution(* com.vincent.service.ServiceIpl.*(. .))"
+			id="stockServiceOperation" />
+		<aop:advisor advice-ref="txAdvise" pointcut-ref="stockServiceOperation" />
+	</aop:config>
+ 	-->
+
+</beans>
