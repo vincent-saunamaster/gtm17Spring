@@ -61,7 +61,8 @@
 	<aop:aspectj-autoproxy />
 
 
-	<!-- Mise en place d'un intercepteur SPRING pour la gestion des interceptions (non fonctionnel) -->
+
+	<!-- Mise en place d'un intercepteur SPRING pour la gestion des interceptions (remplace @Transactional) -->
 	<!--  
 	<tx:advice id="txAdvise" transaction-manager="transactionManagerJPA">
 		<tx:attributes>

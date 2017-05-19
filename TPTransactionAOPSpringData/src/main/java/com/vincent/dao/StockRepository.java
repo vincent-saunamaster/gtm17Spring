@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.vincent.metier.Stock;
-@Transactional //spring 
+@Transactional //spring (remplacable par xml)
 public interface StockRepository extends JpaRepository<Stock, Integer>{
 	
 	@Modifying // pour modifier la BDD
